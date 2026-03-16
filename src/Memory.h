@@ -71,6 +71,7 @@ public:
     void Write(u16 address, u8 value);
     u8 PerformRuleRead(u16 address);
     void PerformRuleWrite(u16 address, u8 value);
+    void UpdateReadPages();
     u8 ReadCGBWRAM(u16 address);
     void WriteCGBWRAM(u16 address, u8 value);
     void SwitchCGBWRAM(u8 value);
@@ -149,6 +150,7 @@ private:
     u8* m_pBootromDMG;
     u8* m_pBootromGBC;
     bool m_bBootromRegistryDisabled;
+    u8* m_ReadPages[16];
 };
 
 #include "Memory_inline.h"

@@ -60,35 +60,30 @@ inline u8 Memory::Read(u16 address)
     CheckBreakpoints(address, false);
     #endif
 
+    // Fast path: page table lookup for directly-mapped regions
+    // (ROM banks, VRAM, WRAM). NULL pages fall through to slow path.
+    u8* page = m_ReadPages[address >> 12];
+    if (page)
+        return page[address & 0x0FFF];
+
+    // Slow path: regions that need special handling
     switch (address & 0xE000)
     {
         case 0x0000:
         {
-            if (!m_bBootromRegistryDisabled)
+            // Page table was NULL — bootrom must be active
+            if (m_bCGB)
             {
-                if (m_bCGB)
-                {
-                    if (m_bBootromGBCEnabled && m_bBootromGBCLoaded && ((address < 0x0100) || (address < 0x0900 && address > 0x01FF)))
-                        return m_pBootromGBC[address];
-                }
-                else
-                {
-                    if (m_bBootromDMGEnabled && m_bBootromDMGLoaded && (address < 0x0100))
-                        return m_pBootromDMG[address];
-                }
+                if (m_bBootromGBCEnabled && m_bBootromGBCLoaded && ((address < 0x0100) || (address < 0x0900 && address > 0x01FF)))
+                    return m_pBootromGBC[address];
+            }
+            else
+            {
+                if (m_bBootromDMGEnabled && m_bBootromDMGLoaded && (address < 0x0100))
+                    return m_pBootromDMG[address];
             }
 
             return PerformRuleRead(address);
-        }
-        case 0x2000:
-        case 0x4000:
-        case 0x6000:
-        {
-            return PerformRuleRead(address);
-        }
-        case 0x8000:
-        {
-            return m_pCommonMemoryRule->PerformRead(address);
         }
         case 0xA000:
         {
@@ -123,6 +118,9 @@ inline void Memory::Write(u16 address, u8 value)
         case 0x6000:
         {
             PerformRuleWrite(address, value);
+            // MBC bank switch may have changed ROM mapping — refresh page table.
+            // Bank switches are rare (~few per frame), so this is cheap.
+            UpdateReadPages();
             break;
         }
         case 0x8000:
@@ -174,6 +172,8 @@ inline void Memory::SwitchCGBWRAM(u8 value)
 
     if (m_iCurrentWRAMBank == 0)
         m_iCurrentWRAMBank = 1;
+
+    m_ReadPages[13] = m_pWRAMBanks + (0x1000 * m_iCurrentWRAMBank);
 }
 
 inline u8 Memory::ReadCGBLCDRAM(u16 address, bool forceBank1)
@@ -195,6 +195,17 @@ inline void Memory::WriteCGBLCDRAM(u16 address, u8 value)
 inline void Memory::SwitchCGBLCDRAM(u8 value)
 {
     m_iCurrentLCDRAMBank = value;
+
+    if (m_bCGB && m_iCurrentLCDRAMBank == 1)
+    {
+        m_ReadPages[8] = m_pLCDRAMBank1;
+        m_ReadPages[9] = m_pLCDRAMBank1 + 0x1000;
+    }
+    else
+    {
+        m_ReadPages[8] = m_pMap + 0x8000;
+        m_ReadPages[9] = m_pMap + 0x9000;
+    }
 }
 
 inline u8 Memory::Retrieve(u16 address)

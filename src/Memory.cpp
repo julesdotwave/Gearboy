@@ -37,6 +37,7 @@ Memory::Memory()
     InitPointer(m_pIORegistersMemoryRule);
     InitPointer(m_pCurrentMemoryRule);
     m_CurrentRuleType = Cartridge::CartridgeNoMBC;
+    memset(m_ReadPages, 0, sizeof(m_ReadPages));
     InitPointer(m_pBootromDMG);
     InitPointer(m_pBootromGBC);
     m_bCGB = false;
@@ -215,12 +216,15 @@ void Memory::Reset(bool bCGB)
         m_HDMADestination = ((hdma3 & 0x1F) << 8) | (hdma4 & 0xF0);
         m_HDMADestination |= 0x8000;
     }
+
+    memset(m_ReadPages, 0, sizeof(m_ReadPages));
 }
 
 void Memory::SetCurrentRule(MemoryRule* pRule, Cartridge::CartridgeTypes type)
 {
     m_pCurrentMemoryRule = pRule;
     m_CurrentRuleType = type;
+    UpdateReadPages();
 }
 
 void Memory::SetCommonRule(CommonMemoryRule* pRule)
@@ -250,6 +254,63 @@ void Memory::LoadBank0and1FromROM(u8* pTheROM)
     {
         m_pMap[i] = pTheROM[i];
     }
+    UpdateReadPages();
+}
+
+void Memory::UpdateReadPages()
+{
+    // Pages 0-3: ROM bank 0 (from m_pMap, where LoadBank0and1FromROM copied it)
+    // NULL while bootrom is active so reads fall back to the bootrom-aware path
+    if (m_bBootromRegistryDisabled)
+    {
+        for (int i = 0; i < 4; i++)
+            m_ReadPages[i] = m_pMap + (i * 0x1000);
+    }
+    else
+    {
+        for (int i = 0; i < 4; i++)
+            m_ReadPages[i] = NULL;
+    }
+
+    // Pages 4-7: Switchable ROM bank (updated on bank switch)
+    if (IsValidPointer(m_pCurrentMemoryRule))
+    {
+        u8* bank1 = m_pCurrentMemoryRule->GetCurrentRomBank1();
+        if (IsValidPointer(bank1))
+        {
+            for (int i = 0; i < 4; i++)
+                m_ReadPages[4 + i] = bank1 + (i * 0x1000);
+        }
+        else
+        {
+            for (int i = 0; i < 4; i++)
+                m_ReadPages[4 + i] = NULL;
+        }
+    }
+
+    // Pages 8-9: VRAM (bank-switched on CGB)
+    if (m_bCGB && m_iCurrentLCDRAMBank == 1)
+    {
+        m_ReadPages[8] = m_pLCDRAMBank1;
+        m_ReadPages[9] = m_pLCDRAMBank1 + 0x1000;
+    }
+    else
+    {
+        m_ReadPages[8] = m_pMap + 0x8000;
+        m_ReadPages[9] = m_pMap + 0x9000;
+    }
+
+    // Pages 10-11: Cart RAM — leave as NULL (enable/disable logic in MBC)
+    m_ReadPages[10] = NULL;
+    m_ReadPages[11] = NULL;
+
+    // Pages 12-13: WRAM (bank-switched on CGB)
+    m_ReadPages[12] = m_pWRAMBanks;
+    m_ReadPages[13] = m_pWRAMBanks + (0x1000 * m_iCurrentWRAMBank);
+
+    // Pages 14-15: Echo RAM, OAM, IO, HRAM — must use fallback
+    m_ReadPages[14] = NULL;
+    m_ReadPages[15] = NULL;
 }
 
 void Memory::MemoryDump(const char* szFilePath)
@@ -627,6 +688,7 @@ void Memory::DisableBootromRegistry()
     }
 
     m_bBootromRegistryDisabled = true;
+    UpdateReadPages();
 }
 
 bool Memory::IsBootromRegistryEnabled()
