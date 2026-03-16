@@ -186,14 +186,12 @@ u8 Processor::RunFor(u8 ticks)
 
                 const u8* accurateOPcodes;
                 const u8* machineCycles;
-                OPCptr* opcodeTable;
                 bool isCB = (opcode == 0xCB);
 
                 if (isCB)
                 {
                     accurateOPcodes = kOPCodeCBAccurate;
                     machineCycles = kOPCodeCBMachineCycles;
-                    opcodeTable = m_OPCodesCB;
 
                     opcode = m_pMemory->Read(PC.GetValue());
                     PC.Increment();
@@ -208,7 +206,6 @@ u8 Processor::RunFor(u8 ticks)
                 {
                     accurateOPcodes = kOPCodeAccurate;
                     machineCycles = kOPCodeMachineCycles;
-                    opcodeTable = m_OPCodes;
                 }
 
                 if ((accurateOPcodes[opcode] != 0) && (m_iAccurateOPCodeState == 0))
@@ -222,7 +219,10 @@ u8 Processor::RunFor(u8 ticks)
                 }
                 else
                 {
-                    (this->*opcodeTable[opcode])();
+                    if (isCB)
+                        ExecuteOPCodeCB(opcode);
+                    else
+                        ExecuteOPCode(opcode);
 
                     if (m_bBranchTaken)
                     {
@@ -713,6 +713,276 @@ void Processor::ClearGameSharkCheats()
 Processor::ProcessorState* Processor::GetState()
 {
     return &m_ProcessorState;
+}
+
+void Processor::ExecuteOPCode(u8 opcode)
+{
+    switch (opcode)
+    {
+        case 0x00: OPCode0x00(); break; case 0x01: OPCode0x01(); break;
+        case 0x02: OPCode0x02(); break; case 0x03: OPCode0x03(); break;
+        case 0x04: OPCode0x04(); break; case 0x05: OPCode0x05(); break;
+        case 0x06: OPCode0x06(); break; case 0x07: OPCode0x07(); break;
+        case 0x08: OPCode0x08(); break; case 0x09: OPCode0x09(); break;
+        case 0x0A: OPCode0x0A(); break; case 0x0B: OPCode0x0B(); break;
+        case 0x0C: OPCode0x0C(); break; case 0x0D: OPCode0x0D(); break;
+        case 0x0E: OPCode0x0E(); break; case 0x0F: OPCode0x0F(); break;
+        case 0x10: OPCode0x10(); break; case 0x11: OPCode0x11(); break;
+        case 0x12: OPCode0x12(); break; case 0x13: OPCode0x13(); break;
+        case 0x14: OPCode0x14(); break; case 0x15: OPCode0x15(); break;
+        case 0x16: OPCode0x16(); break; case 0x17: OPCode0x17(); break;
+        case 0x18: OPCode0x18(); break; case 0x19: OPCode0x19(); break;
+        case 0x1A: OPCode0x1A(); break; case 0x1B: OPCode0x1B(); break;
+        case 0x1C: OPCode0x1C(); break; case 0x1D: OPCode0x1D(); break;
+        case 0x1E: OPCode0x1E(); break; case 0x1F: OPCode0x1F(); break;
+        case 0x20: OPCode0x20(); break; case 0x21: OPCode0x21(); break;
+        case 0x22: OPCode0x22(); break; case 0x23: OPCode0x23(); break;
+        case 0x24: OPCode0x24(); break; case 0x25: OPCode0x25(); break;
+        case 0x26: OPCode0x26(); break; case 0x27: OPCode0x27(); break;
+        case 0x28: OPCode0x28(); break; case 0x29: OPCode0x29(); break;
+        case 0x2A: OPCode0x2A(); break; case 0x2B: OPCode0x2B(); break;
+        case 0x2C: OPCode0x2C(); break; case 0x2D: OPCode0x2D(); break;
+        case 0x2E: OPCode0x2E(); break; case 0x2F: OPCode0x2F(); break;
+        case 0x30: OPCode0x30(); break; case 0x31: OPCode0x31(); break;
+        case 0x32: OPCode0x32(); break; case 0x33: OPCode0x33(); break;
+        case 0x34: OPCode0x34(); break; case 0x35: OPCode0x35(); break;
+        case 0x36: OPCode0x36(); break; case 0x37: OPCode0x37(); break;
+        case 0x38: OPCode0x38(); break; case 0x39: OPCode0x39(); break;
+        case 0x3A: OPCode0x3A(); break; case 0x3B: OPCode0x3B(); break;
+        case 0x3C: OPCode0x3C(); break; case 0x3D: OPCode0x3D(); break;
+        case 0x3E: OPCode0x3E(); break; case 0x3F: OPCode0x3F(); break;
+        case 0x40: OPCode0x40(); break; case 0x41: OPCode0x41(); break;
+        case 0x42: OPCode0x42(); break; case 0x43: OPCode0x43(); break;
+        case 0x44: OPCode0x44(); break; case 0x45: OPCode0x45(); break;
+        case 0x46: OPCode0x46(); break; case 0x47: OPCode0x47(); break;
+        case 0x48: OPCode0x48(); break; case 0x49: OPCode0x49(); break;
+        case 0x4A: OPCode0x4A(); break; case 0x4B: OPCode0x4B(); break;
+        case 0x4C: OPCode0x4C(); break; case 0x4D: OPCode0x4D(); break;
+        case 0x4E: OPCode0x4E(); break; case 0x4F: OPCode0x4F(); break;
+        case 0x50: OPCode0x50(); break; case 0x51: OPCode0x51(); break;
+        case 0x52: OPCode0x52(); break; case 0x53: OPCode0x53(); break;
+        case 0x54: OPCode0x54(); break; case 0x55: OPCode0x55(); break;
+        case 0x56: OPCode0x56(); break; case 0x57: OPCode0x57(); break;
+        case 0x58: OPCode0x58(); break; case 0x59: OPCode0x59(); break;
+        case 0x5A: OPCode0x5A(); break; case 0x5B: OPCode0x5B(); break;
+        case 0x5C: OPCode0x5C(); break; case 0x5D: OPCode0x5D(); break;
+        case 0x5E: OPCode0x5E(); break; case 0x5F: OPCode0x5F(); break;
+        case 0x60: OPCode0x60(); break; case 0x61: OPCode0x61(); break;
+        case 0x62: OPCode0x62(); break; case 0x63: OPCode0x63(); break;
+        case 0x64: OPCode0x64(); break; case 0x65: OPCode0x65(); break;
+        case 0x66: OPCode0x66(); break; case 0x67: OPCode0x67(); break;
+        case 0x68: OPCode0x68(); break; case 0x69: OPCode0x69(); break;
+        case 0x6A: OPCode0x6A(); break; case 0x6B: OPCode0x6B(); break;
+        case 0x6C: OPCode0x6C(); break; case 0x6D: OPCode0x6D(); break;
+        case 0x6E: OPCode0x6E(); break; case 0x6F: OPCode0x6F(); break;
+        case 0x70: OPCode0x70(); break; case 0x71: OPCode0x71(); break;
+        case 0x72: OPCode0x72(); break; case 0x73: OPCode0x73(); break;
+        case 0x74: OPCode0x74(); break; case 0x75: OPCode0x75(); break;
+        case 0x76: OPCode0x76(); break; case 0x77: OPCode0x77(); break;
+        case 0x78: OPCode0x78(); break; case 0x79: OPCode0x79(); break;
+        case 0x7A: OPCode0x7A(); break; case 0x7B: OPCode0x7B(); break;
+        case 0x7C: OPCode0x7C(); break; case 0x7D: OPCode0x7D(); break;
+        case 0x7E: OPCode0x7E(); break; case 0x7F: OPCode0x7F(); break;
+        case 0x80: OPCode0x80(); break; case 0x81: OPCode0x81(); break;
+        case 0x82: OPCode0x82(); break; case 0x83: OPCode0x83(); break;
+        case 0x84: OPCode0x84(); break; case 0x85: OPCode0x85(); break;
+        case 0x86: OPCode0x86(); break; case 0x87: OPCode0x87(); break;
+        case 0x88: OPCode0x88(); break; case 0x89: OPCode0x89(); break;
+        case 0x8A: OPCode0x8A(); break; case 0x8B: OPCode0x8B(); break;
+        case 0x8C: OPCode0x8C(); break; case 0x8D: OPCode0x8D(); break;
+        case 0x8E: OPCode0x8E(); break; case 0x8F: OPCode0x8F(); break;
+        case 0x90: OPCode0x90(); break; case 0x91: OPCode0x91(); break;
+        case 0x92: OPCode0x92(); break; case 0x93: OPCode0x93(); break;
+        case 0x94: OPCode0x94(); break; case 0x95: OPCode0x95(); break;
+        case 0x96: OPCode0x96(); break; case 0x97: OPCode0x97(); break;
+        case 0x98: OPCode0x98(); break; case 0x99: OPCode0x99(); break;
+        case 0x9A: OPCode0x9A(); break; case 0x9B: OPCode0x9B(); break;
+        case 0x9C: OPCode0x9C(); break; case 0x9D: OPCode0x9D(); break;
+        case 0x9E: OPCode0x9E(); break; case 0x9F: OPCode0x9F(); break;
+        case 0xA0: OPCode0xA0(); break; case 0xA1: OPCode0xA1(); break;
+        case 0xA2: OPCode0xA2(); break; case 0xA3: OPCode0xA3(); break;
+        case 0xA4: OPCode0xA4(); break; case 0xA5: OPCode0xA5(); break;
+        case 0xA6: OPCode0xA6(); break; case 0xA7: OPCode0xA7(); break;
+        case 0xA8: OPCode0xA8(); break; case 0xA9: OPCode0xA9(); break;
+        case 0xAA: OPCode0xAA(); break; case 0xAB: OPCode0xAB(); break;
+        case 0xAC: OPCode0xAC(); break; case 0xAD: OPCode0xAD(); break;
+        case 0xAE: OPCode0xAE(); break; case 0xAF: OPCode0xAF(); break;
+        case 0xB0: OPCode0xB0(); break; case 0xB1: OPCode0xB1(); break;
+        case 0xB2: OPCode0xB2(); break; case 0xB3: OPCode0xB3(); break;
+        case 0xB4: OPCode0xB4(); break; case 0xB5: OPCode0xB5(); break;
+        case 0xB6: OPCode0xB6(); break; case 0xB7: OPCode0xB7(); break;
+        case 0xB8: OPCode0xB8(); break; case 0xB9: OPCode0xB9(); break;
+        case 0xBA: OPCode0xBA(); break; case 0xBB: OPCode0xBB(); break;
+        case 0xBC: OPCode0xBC(); break; case 0xBD: OPCode0xBD(); break;
+        case 0xBE: OPCode0xBE(); break; case 0xBF: OPCode0xBF(); break;
+        case 0xC0: OPCode0xC0(); break; case 0xC1: OPCode0xC1(); break;
+        case 0xC2: OPCode0xC2(); break; case 0xC3: OPCode0xC3(); break;
+        case 0xC4: OPCode0xC4(); break; case 0xC5: OPCode0xC5(); break;
+        case 0xC6: OPCode0xC6(); break; case 0xC7: OPCode0xC7(); break;
+        case 0xC8: OPCode0xC8(); break; case 0xC9: OPCode0xC9(); break;
+        case 0xCA: OPCode0xCA(); break; case 0xCB: OPCode0xCB(); break;
+        case 0xCC: OPCode0xCC(); break; case 0xCD: OPCode0xCD(); break;
+        case 0xCE: OPCode0xCE(); break; case 0xCF: OPCode0xCF(); break;
+        case 0xD0: OPCode0xD0(); break; case 0xD1: OPCode0xD1(); break;
+        case 0xD2: OPCode0xD2(); break; case 0xD3: OPCode0xD3(); break;
+        case 0xD4: OPCode0xD4(); break; case 0xD5: OPCode0xD5(); break;
+        case 0xD6: OPCode0xD6(); break; case 0xD7: OPCode0xD7(); break;
+        case 0xD8: OPCode0xD8(); break; case 0xD9: OPCode0xD9(); break;
+        case 0xDA: OPCode0xDA(); break; case 0xDB: OPCode0xDB(); break;
+        case 0xDC: OPCode0xDC(); break; case 0xDD: OPCode0xDD(); break;
+        case 0xDE: OPCode0xDE(); break; case 0xDF: OPCode0xDF(); break;
+        case 0xE0: OPCode0xE0(); break; case 0xE1: OPCode0xE1(); break;
+        case 0xE2: OPCode0xE2(); break; case 0xE3: OPCode0xE3(); break;
+        case 0xE4: OPCode0xE4(); break; case 0xE5: OPCode0xE5(); break;
+        case 0xE6: OPCode0xE6(); break; case 0xE7: OPCode0xE7(); break;
+        case 0xE8: OPCode0xE8(); break; case 0xE9: OPCode0xE9(); break;
+        case 0xEA: OPCode0xEA(); break; case 0xEB: OPCode0xEB(); break;
+        case 0xEC: OPCode0xEC(); break; case 0xED: OPCode0xED(); break;
+        case 0xEE: OPCode0xEE(); break; case 0xEF: OPCode0xEF(); break;
+        case 0xF0: OPCode0xF0(); break; case 0xF1: OPCode0xF1(); break;
+        case 0xF2: OPCode0xF2(); break; case 0xF3: OPCode0xF3(); break;
+        case 0xF4: OPCode0xF4(); break; case 0xF5: OPCode0xF5(); break;
+        case 0xF6: OPCode0xF6(); break; case 0xF7: OPCode0xF7(); break;
+        case 0xF8: OPCode0xF8(); break; case 0xF9: OPCode0xF9(); break;
+        case 0xFA: OPCode0xFA(); break; case 0xFB: OPCode0xFB(); break;
+        case 0xFC: OPCode0xFC(); break; case 0xFD: OPCode0xFD(); break;
+        case 0xFE: OPCode0xFE(); break; case 0xFF: OPCode0xFF(); break;
+    }
+}
+
+void Processor::ExecuteOPCodeCB(u8 opcode)
+{
+    switch (opcode)
+    {
+        case 0x00: OPCodeCB0x00(); break; case 0x01: OPCodeCB0x01(); break;
+        case 0x02: OPCodeCB0x02(); break; case 0x03: OPCodeCB0x03(); break;
+        case 0x04: OPCodeCB0x04(); break; case 0x05: OPCodeCB0x05(); break;
+        case 0x06: OPCodeCB0x06(); break; case 0x07: OPCodeCB0x07(); break;
+        case 0x08: OPCodeCB0x08(); break; case 0x09: OPCodeCB0x09(); break;
+        case 0x0A: OPCodeCB0x0A(); break; case 0x0B: OPCodeCB0x0B(); break;
+        case 0x0C: OPCodeCB0x0C(); break; case 0x0D: OPCodeCB0x0D(); break;
+        case 0x0E: OPCodeCB0x0E(); break; case 0x0F: OPCodeCB0x0F(); break;
+        case 0x10: OPCodeCB0x10(); break; case 0x11: OPCodeCB0x11(); break;
+        case 0x12: OPCodeCB0x12(); break; case 0x13: OPCodeCB0x13(); break;
+        case 0x14: OPCodeCB0x14(); break; case 0x15: OPCodeCB0x15(); break;
+        case 0x16: OPCodeCB0x16(); break; case 0x17: OPCodeCB0x17(); break;
+        case 0x18: OPCodeCB0x18(); break; case 0x19: OPCodeCB0x19(); break;
+        case 0x1A: OPCodeCB0x1A(); break; case 0x1B: OPCodeCB0x1B(); break;
+        case 0x1C: OPCodeCB0x1C(); break; case 0x1D: OPCodeCB0x1D(); break;
+        case 0x1E: OPCodeCB0x1E(); break; case 0x1F: OPCodeCB0x1F(); break;
+        case 0x20: OPCodeCB0x20(); break; case 0x21: OPCodeCB0x21(); break;
+        case 0x22: OPCodeCB0x22(); break; case 0x23: OPCodeCB0x23(); break;
+        case 0x24: OPCodeCB0x24(); break; case 0x25: OPCodeCB0x25(); break;
+        case 0x26: OPCodeCB0x26(); break; case 0x27: OPCodeCB0x27(); break;
+        case 0x28: OPCodeCB0x28(); break; case 0x29: OPCodeCB0x29(); break;
+        case 0x2A: OPCodeCB0x2A(); break; case 0x2B: OPCodeCB0x2B(); break;
+        case 0x2C: OPCodeCB0x2C(); break; case 0x2D: OPCodeCB0x2D(); break;
+        case 0x2E: OPCodeCB0x2E(); break; case 0x2F: OPCodeCB0x2F(); break;
+        case 0x30: OPCodeCB0x30(); break; case 0x31: OPCodeCB0x31(); break;
+        case 0x32: OPCodeCB0x32(); break; case 0x33: OPCodeCB0x33(); break;
+        case 0x34: OPCodeCB0x34(); break; case 0x35: OPCodeCB0x35(); break;
+        case 0x36: OPCodeCB0x36(); break; case 0x37: OPCodeCB0x37(); break;
+        case 0x38: OPCodeCB0x38(); break; case 0x39: OPCodeCB0x39(); break;
+        case 0x3A: OPCodeCB0x3A(); break; case 0x3B: OPCodeCB0x3B(); break;
+        case 0x3C: OPCodeCB0x3C(); break; case 0x3D: OPCodeCB0x3D(); break;
+        case 0x3E: OPCodeCB0x3E(); break; case 0x3F: OPCodeCB0x3F(); break;
+        case 0x40: OPCodeCB0x40(); break; case 0x41: OPCodeCB0x41(); break;
+        case 0x42: OPCodeCB0x42(); break; case 0x43: OPCodeCB0x43(); break;
+        case 0x44: OPCodeCB0x44(); break; case 0x45: OPCodeCB0x45(); break;
+        case 0x46: OPCodeCB0x46(); break; case 0x47: OPCodeCB0x47(); break;
+        case 0x48: OPCodeCB0x48(); break; case 0x49: OPCodeCB0x49(); break;
+        case 0x4A: OPCodeCB0x4A(); break; case 0x4B: OPCodeCB0x4B(); break;
+        case 0x4C: OPCodeCB0x4C(); break; case 0x4D: OPCodeCB0x4D(); break;
+        case 0x4E: OPCodeCB0x4E(); break; case 0x4F: OPCodeCB0x4F(); break;
+        case 0x50: OPCodeCB0x50(); break; case 0x51: OPCodeCB0x51(); break;
+        case 0x52: OPCodeCB0x52(); break; case 0x53: OPCodeCB0x53(); break;
+        case 0x54: OPCodeCB0x54(); break; case 0x55: OPCodeCB0x55(); break;
+        case 0x56: OPCodeCB0x56(); break; case 0x57: OPCodeCB0x57(); break;
+        case 0x58: OPCodeCB0x58(); break; case 0x59: OPCodeCB0x59(); break;
+        case 0x5A: OPCodeCB0x5A(); break; case 0x5B: OPCodeCB0x5B(); break;
+        case 0x5C: OPCodeCB0x5C(); break; case 0x5D: OPCodeCB0x5D(); break;
+        case 0x5E: OPCodeCB0x5E(); break; case 0x5F: OPCodeCB0x5F(); break;
+        case 0x60: OPCodeCB0x60(); break; case 0x61: OPCodeCB0x61(); break;
+        case 0x62: OPCodeCB0x62(); break; case 0x63: OPCodeCB0x63(); break;
+        case 0x64: OPCodeCB0x64(); break; case 0x65: OPCodeCB0x65(); break;
+        case 0x66: OPCodeCB0x66(); break; case 0x67: OPCodeCB0x67(); break;
+        case 0x68: OPCodeCB0x68(); break; case 0x69: OPCodeCB0x69(); break;
+        case 0x6A: OPCodeCB0x6A(); break; case 0x6B: OPCodeCB0x6B(); break;
+        case 0x6C: OPCodeCB0x6C(); break; case 0x6D: OPCodeCB0x6D(); break;
+        case 0x6E: OPCodeCB0x6E(); break; case 0x6F: OPCodeCB0x6F(); break;
+        case 0x70: OPCodeCB0x70(); break; case 0x71: OPCodeCB0x71(); break;
+        case 0x72: OPCodeCB0x72(); break; case 0x73: OPCodeCB0x73(); break;
+        case 0x74: OPCodeCB0x74(); break; case 0x75: OPCodeCB0x75(); break;
+        case 0x76: OPCodeCB0x76(); break; case 0x77: OPCodeCB0x77(); break;
+        case 0x78: OPCodeCB0x78(); break; case 0x79: OPCodeCB0x79(); break;
+        case 0x7A: OPCodeCB0x7A(); break; case 0x7B: OPCodeCB0x7B(); break;
+        case 0x7C: OPCodeCB0x7C(); break; case 0x7D: OPCodeCB0x7D(); break;
+        case 0x7E: OPCodeCB0x7E(); break; case 0x7F: OPCodeCB0x7F(); break;
+        case 0x80: OPCodeCB0x80(); break; case 0x81: OPCodeCB0x81(); break;
+        case 0x82: OPCodeCB0x82(); break; case 0x83: OPCodeCB0x83(); break;
+        case 0x84: OPCodeCB0x84(); break; case 0x85: OPCodeCB0x85(); break;
+        case 0x86: OPCodeCB0x86(); break; case 0x87: OPCodeCB0x87(); break;
+        case 0x88: OPCodeCB0x88(); break; case 0x89: OPCodeCB0x89(); break;
+        case 0x8A: OPCodeCB0x8A(); break; case 0x8B: OPCodeCB0x8B(); break;
+        case 0x8C: OPCodeCB0x8C(); break; case 0x8D: OPCodeCB0x8D(); break;
+        case 0x8E: OPCodeCB0x8E(); break; case 0x8F: OPCodeCB0x8F(); break;
+        case 0x90: OPCodeCB0x90(); break; case 0x91: OPCodeCB0x91(); break;
+        case 0x92: OPCodeCB0x92(); break; case 0x93: OPCodeCB0x93(); break;
+        case 0x94: OPCodeCB0x94(); break; case 0x95: OPCodeCB0x95(); break;
+        case 0x96: OPCodeCB0x96(); break; case 0x97: OPCodeCB0x97(); break;
+        case 0x98: OPCodeCB0x98(); break; case 0x99: OPCodeCB0x99(); break;
+        case 0x9A: OPCodeCB0x9A(); break; case 0x9B: OPCodeCB0x9B(); break;
+        case 0x9C: OPCodeCB0x9C(); break; case 0x9D: OPCodeCB0x9D(); break;
+        case 0x9E: OPCodeCB0x9E(); break; case 0x9F: OPCodeCB0x9F(); break;
+        case 0xA0: OPCodeCB0xA0(); break; case 0xA1: OPCodeCB0xA1(); break;
+        case 0xA2: OPCodeCB0xA2(); break; case 0xA3: OPCodeCB0xA3(); break;
+        case 0xA4: OPCodeCB0xA4(); break; case 0xA5: OPCodeCB0xA5(); break;
+        case 0xA6: OPCodeCB0xA6(); break; case 0xA7: OPCodeCB0xA7(); break;
+        case 0xA8: OPCodeCB0xA8(); break; case 0xA9: OPCodeCB0xA9(); break;
+        case 0xAA: OPCodeCB0xAA(); break; case 0xAB: OPCodeCB0xAB(); break;
+        case 0xAC: OPCodeCB0xAC(); break; case 0xAD: OPCodeCB0xAD(); break;
+        case 0xAE: OPCodeCB0xAE(); break; case 0xAF: OPCodeCB0xAF(); break;
+        case 0xB0: OPCodeCB0xB0(); break; case 0xB1: OPCodeCB0xB1(); break;
+        case 0xB2: OPCodeCB0xB2(); break; case 0xB3: OPCodeCB0xB3(); break;
+        case 0xB4: OPCodeCB0xB4(); break; case 0xB5: OPCodeCB0xB5(); break;
+        case 0xB6: OPCodeCB0xB6(); break; case 0xB7: OPCodeCB0xB7(); break;
+        case 0xB8: OPCodeCB0xB8(); break; case 0xB9: OPCodeCB0xB9(); break;
+        case 0xBA: OPCodeCB0xBA(); break; case 0xBB: OPCodeCB0xBB(); break;
+        case 0xBC: OPCodeCB0xBC(); break; case 0xBD: OPCodeCB0xBD(); break;
+        case 0xBE: OPCodeCB0xBE(); break; case 0xBF: OPCodeCB0xBF(); break;
+        case 0xC0: OPCodeCB0xC0(); break; case 0xC1: OPCodeCB0xC1(); break;
+        case 0xC2: OPCodeCB0xC2(); break; case 0xC3: OPCodeCB0xC3(); break;
+        case 0xC4: OPCodeCB0xC4(); break; case 0xC5: OPCodeCB0xC5(); break;
+        case 0xC6: OPCodeCB0xC6(); break; case 0xC7: OPCodeCB0xC7(); break;
+        case 0xC8: OPCodeCB0xC8(); break; case 0xC9: OPCodeCB0xC9(); break;
+        case 0xCA: OPCodeCB0xCA(); break; case 0xCB: OPCodeCB0xCB(); break;
+        case 0xCC: OPCodeCB0xCC(); break; case 0xCD: OPCodeCB0xCD(); break;
+        case 0xCE: OPCodeCB0xCE(); break; case 0xCF: OPCodeCB0xCF(); break;
+        case 0xD0: OPCodeCB0xD0(); break; case 0xD1: OPCodeCB0xD1(); break;
+        case 0xD2: OPCodeCB0xD2(); break; case 0xD3: OPCodeCB0xD3(); break;
+        case 0xD4: OPCodeCB0xD4(); break; case 0xD5: OPCodeCB0xD5(); break;
+        case 0xD6: OPCodeCB0xD6(); break; case 0xD7: OPCodeCB0xD7(); break;
+        case 0xD8: OPCodeCB0xD8(); break; case 0xD9: OPCodeCB0xD9(); break;
+        case 0xDA: OPCodeCB0xDA(); break; case 0xDB: OPCodeCB0xDB(); break;
+        case 0xDC: OPCodeCB0xDC(); break; case 0xDD: OPCodeCB0xDD(); break;
+        case 0xDE: OPCodeCB0xDE(); break; case 0xDF: OPCodeCB0xDF(); break;
+        case 0xE0: OPCodeCB0xE0(); break; case 0xE1: OPCodeCB0xE1(); break;
+        case 0xE2: OPCodeCB0xE2(); break; case 0xE3: OPCodeCB0xE3(); break;
+        case 0xE4: OPCodeCB0xE4(); break; case 0xE5: OPCodeCB0xE5(); break;
+        case 0xE6: OPCodeCB0xE6(); break; case 0xE7: OPCodeCB0xE7(); break;
+        case 0xE8: OPCodeCB0xE8(); break; case 0xE9: OPCodeCB0xE9(); break;
+        case 0xEA: OPCodeCB0xEA(); break; case 0xEB: OPCodeCB0xEB(); break;
+        case 0xEC: OPCodeCB0xEC(); break; case 0xED: OPCodeCB0xED(); break;
+        case 0xEE: OPCodeCB0xEE(); break; case 0xEF: OPCodeCB0xEF(); break;
+        case 0xF0: OPCodeCB0xF0(); break; case 0xF1: OPCodeCB0xF1(); break;
+        case 0xF2: OPCodeCB0xF2(); break; case 0xF3: OPCodeCB0xF3(); break;
+        case 0xF4: OPCodeCB0xF4(); break; case 0xF5: OPCodeCB0xF5(); break;
+        case 0xF6: OPCodeCB0xF6(); break; case 0xF7: OPCodeCB0xF7(); break;
+        case 0xF8: OPCodeCB0xF8(); break; case 0xF9: OPCodeCB0xF9(); break;
+        case 0xFA: OPCodeCB0xFA(); break; case 0xFB: OPCodeCB0xFB(); break;
+        case 0xFC: OPCodeCB0xFC(); break; case 0xFD: OPCodeCB0xFD(); break;
+        case 0xFE: OPCodeCB0xFE(); break; case 0xFF: OPCodeCB0xFF(); break;
+    }
 }
 
 void Processor::InitOPCodeFunctors()

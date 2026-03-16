@@ -33,7 +33,7 @@
 #define DEBUG_GEARBOY 1
 #endif
 
-#if defined(PS2) || defined(PSP)
+#if defined(PS2) || defined(PSP) || defined(__3DS__)
 #define PERFORMANCE
 #endif
 

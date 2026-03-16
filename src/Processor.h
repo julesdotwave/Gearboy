@@ -172,6 +172,8 @@ private:
     void OPCodes_RES(u8* reg, int bit);
     void OPCodes_RES_HL(int bit);
     void InitOPCodeFunctors();
+    void ExecuteOPCode(u8 opcode);
+    void ExecuteOPCodeCB(u8 opcode);
     void OPCode0x00();
     void OPCode0x01();
     void OPCode0x02();
