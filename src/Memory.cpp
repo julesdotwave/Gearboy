@@ -36,6 +36,7 @@ Memory::Memory()
     InitPointer(m_pCommonMemoryRule);
     InitPointer(m_pIORegistersMemoryRule);
     InitPointer(m_pCurrentMemoryRule);
+    m_CurrentRuleType = Cartridge::CartridgeNoMBC;
     InitPointer(m_pBootromDMG);
     InitPointer(m_pBootromGBC);
     m_bCGB = false;
@@ -216,9 +217,10 @@ void Memory::Reset(bool bCGB)
     }
 }
 
-void Memory::SetCurrentRule(MemoryRule* pRule)
+void Memory::SetCurrentRule(MemoryRule* pRule, Cartridge::CartridgeTypes type)
 {
     m_pCurrentMemoryRule = pRule;
+    m_CurrentRuleType = type;
 }
 
 void Memory::SetCommonRule(CommonMemoryRule* pRule)

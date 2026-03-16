@@ -3,6 +3,56 @@
 
 #include "CommonMemoryRule.h"
 #include "IORegistersMemoryRule.h"
+#include "RomOnlyMemoryRule.h"
+#include "MBC1MemoryRule.h"
+#include "MultiMBC1MemoryRule.h"
+#include "MBC2MemoryRule.h"
+#include "MBC3MemoryRule.h"
+#include "MBC5MemoryRule.h"
+
+// Devirtualized dispatch: qualified calls (Type::Method) bypass the vtable,
+// turning indirect branches into direct calls that LTO can inline.
+inline u8 Memory::PerformRuleRead(u16 address)
+{
+    switch (m_CurrentRuleType)
+    {
+        case Cartridge::CartridgeMBC5:
+            return static_cast<MBC5MemoryRule*>(m_pCurrentMemoryRule)->MBC5MemoryRule::PerformRead(address);
+        case Cartridge::CartridgeMBC1:
+            return static_cast<MBC1MemoryRule*>(m_pCurrentMemoryRule)->MBC1MemoryRule::PerformRead(address);
+        case Cartridge::CartridgeMBC3:
+            return static_cast<MBC3MemoryRule*>(m_pCurrentMemoryRule)->MBC3MemoryRule::PerformRead(address);
+        case Cartridge::CartridgeMBC2:
+            return static_cast<MBC2MemoryRule*>(m_pCurrentMemoryRule)->MBC2MemoryRule::PerformRead(address);
+        case Cartridge::CartridgeMBC1Multi:
+            return static_cast<MultiMBC1MemoryRule*>(m_pCurrentMemoryRule)->MultiMBC1MemoryRule::PerformRead(address);
+        case Cartridge::CartridgeNoMBC:
+            return static_cast<RomOnlyMemoryRule*>(m_pCurrentMemoryRule)->RomOnlyMemoryRule::PerformRead(address);
+        default:
+            return m_pCurrentMemoryRule->PerformRead(address);
+    }
+}
+
+inline void Memory::PerformRuleWrite(u16 address, u8 value)
+{
+    switch (m_CurrentRuleType)
+    {
+        case Cartridge::CartridgeMBC5:
+            static_cast<MBC5MemoryRule*>(m_pCurrentMemoryRule)->MBC5MemoryRule::PerformWrite(address, value); break;
+        case Cartridge::CartridgeMBC1:
+            static_cast<MBC1MemoryRule*>(m_pCurrentMemoryRule)->MBC1MemoryRule::PerformWrite(address, value); break;
+        case Cartridge::CartridgeMBC3:
+            static_cast<MBC3MemoryRule*>(m_pCurrentMemoryRule)->MBC3MemoryRule::PerformWrite(address, value); break;
+        case Cartridge::CartridgeMBC2:
+            static_cast<MBC2MemoryRule*>(m_pCurrentMemoryRule)->MBC2MemoryRule::PerformWrite(address, value); break;
+        case Cartridge::CartridgeMBC1Multi:
+            static_cast<MultiMBC1MemoryRule*>(m_pCurrentMemoryRule)->MultiMBC1MemoryRule::PerformWrite(address, value); break;
+        case Cartridge::CartridgeNoMBC:
+            static_cast<RomOnlyMemoryRule*>(m_pCurrentMemoryRule)->RomOnlyMemoryRule::PerformWrite(address, value); break;
+        default:
+            m_pCurrentMemoryRule->PerformWrite(address, value); break;
+    }
+}
 
 inline u8 Memory::Read(u16 address)
 {
@@ -28,13 +78,13 @@ inline u8 Memory::Read(u16 address)
                 }
             }
 
-            return m_pCurrentMemoryRule->PerformRead(address);
+            return PerformRuleRead(address);
         }
         case 0x2000:
         case 0x4000:
         case 0x6000:
         {
-            return m_pCurrentMemoryRule->PerformRead(address);
+            return PerformRuleRead(address);
         }
         case 0x8000:
         {
@@ -42,7 +92,7 @@ inline u8 Memory::Read(u16 address)
         }
         case 0xA000:
         {
-            return m_pCurrentMemoryRule->PerformRead(address);
+            return PerformRuleRead(address);
         }
         case 0xC000:
         case 0xE000:
@@ -72,7 +122,7 @@ inline void Memory::Write(u16 address, u8 value)
         case 0x4000:
         case 0x6000:
         {
-            m_pCurrentMemoryRule->PerformWrite(address, value);
+            PerformRuleWrite(address, value);
             break;
         }
         case 0x8000:
@@ -82,7 +132,7 @@ inline void Memory::Write(u16 address, u8 value)
         }
         case 0xA000:
         {
-            m_pCurrentMemoryRule->PerformWrite(address, value);
+            PerformRuleWrite(address, value);
             break;
         }
         case 0xC000:

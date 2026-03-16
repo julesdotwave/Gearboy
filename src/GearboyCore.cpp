@@ -1018,7 +1018,7 @@ void GearboyCore::InitMemoryRules()
     m_pMBC5MemoryRule = new MBC5MemoryRule(m_pProcessor, m_pMemory,
             m_pVideo, m_pInput, m_pCartridge, m_pAudio);
 
-    m_pMemory->SetCurrentRule(m_pRomOnlyMemoryRule);
+    m_pMemory->SetCurrentRule(m_pRomOnlyMemoryRule, Cartridge::CartridgeNoMBC);
     m_pMemory->SetIORule(m_pIORegistersMemoryRule);
     m_pMemory->SetCommonRule(m_pCommonMemoryRule);
 }
@@ -1038,22 +1038,22 @@ bool GearboyCore::AddMemoryRules(Cartridge::CartridgeTypes forceType)
     switch (type)
     {
         case Cartridge::CartridgeNoMBC:
-            m_pMemory->SetCurrentRule(m_pRomOnlyMemoryRule);
+            m_pMemory->SetCurrentRule(m_pRomOnlyMemoryRule, Cartridge::CartridgeNoMBC);
             break;
         case Cartridge::CartridgeMBC1:
-            m_pMemory->SetCurrentRule(m_pMBC1MemoryRule);
+            m_pMemory->SetCurrentRule(m_pMBC1MemoryRule, Cartridge::CartridgeMBC1);
             break;
         case Cartridge::CartridgeMBC1Multi:
-            m_pMemory->SetCurrentRule(m_pMultiMBC1MemoryRule);
+            m_pMemory->SetCurrentRule(m_pMultiMBC1MemoryRule, Cartridge::CartridgeMBC1Multi);
             break;
         case Cartridge::CartridgeMBC2:
-            m_pMemory->SetCurrentRule(m_pMBC2MemoryRule);
+            m_pMemory->SetCurrentRule(m_pMBC2MemoryRule, Cartridge::CartridgeMBC2);
             break;
         case Cartridge::CartridgeMBC3:
-            m_pMemory->SetCurrentRule(m_pMBC3MemoryRule);
+            m_pMemory->SetCurrentRule(m_pMBC3MemoryRule, Cartridge::CartridgeMBC3);
             break;
         case Cartridge::CartridgeMBC5:
-            m_pMemory->SetCurrentRule(m_pMBC5MemoryRule);
+            m_pMemory->SetCurrentRule(m_pMBC5MemoryRule, Cartridge::CartridgeMBC5);
             break;
         case Cartridge::CartridgeNotSupported:
             notSupported = true;

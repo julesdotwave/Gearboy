@@ -22,6 +22,7 @@
 
 #include "definitions.h"
 #include "MemoryRule.h"
+#include "Cartridge.h"
 #include <vector>
 
 class Processor;
@@ -61,13 +62,15 @@ public:
     void SetVideo(Video* pVideo);
     void Init();
     void Reset(bool bCGB);
-    void SetCurrentRule(MemoryRule* pRule);
+    void SetCurrentRule(MemoryRule* pRule, Cartridge::CartridgeTypes type = Cartridge::CartridgeNoMBC);
     void SetCommonRule(CommonMemoryRule* pRule);
     void SetIORule(IORegistersMemoryRule* pRule);
     MemoryRule* GetCurrentRule();
     u8* GetMemoryMap();
     u8 Read(u16 address);
     void Write(u16 address, u8 value);
+    u8 PerformRuleRead(u16 address);
+    void PerformRuleWrite(u16 address, u8 value);
     u8 ReadCGBWRAM(u16 address);
     void WriteCGBWRAM(u16 address, u8 value);
     void SwitchCGBWRAM(u8 value);
@@ -122,6 +125,7 @@ private:
     CommonMemoryRule* m_pCommonMemoryRule;
     IORegistersMemoryRule* m_pIORegistersMemoryRule;
     MemoryRule* m_pCurrentMemoryRule;
+    Cartridge::CartridgeTypes m_CurrentRuleType;
     u8* m_pMap;
     stDisassembleRecord** m_pDisassembledMap;
     stDisassembleRecord** m_pDisassembledROMMap;
