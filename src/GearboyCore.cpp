@@ -18,6 +18,9 @@
  */
 
 #include <math.h>
+#ifdef __3DS__
+#include <3ds.h>
+#endif
 #include "GearboyCore.h"
 #include "Memory.h"
 #include "Processor.h"
@@ -82,26 +85,50 @@ GearboyCore::~GearboyCore()
 
 void GearboyCore::Init(GB_Color_Format pixelFormat)
 {
-    Log("Loading %s core %s by Ignacio Sanchez", GEARBOY_TITLE, GEARBOY_VERSION);
+    // Temporary 3DS debug: flush console after each step so we can see where it crashes
+    #ifdef __3DS__
+    #define INIT_LOG(msg) do { printf("  Init: " msg "\n"); gfxFlushBuffers(); gfxSwapBuffers(); gspWaitForVBlank(); } while(0)
+    #else
+    #define INIT_LOG(msg) Log(msg)
+    #endif
+
+    INIT_LOG("start");
 
     m_pixelFormat = pixelFormat;
 
+    INIT_LOG("new Memory");
     m_pMemory = new Memory();
+    INIT_LOG("new Processor");
     m_pProcessor = new Processor(m_pMemory);
+    INIT_LOG("new Video");
     m_pVideo = new Video(m_pMemory, m_pProcessor);
+    INIT_LOG("new Audio");
     m_pAudio = new Audio();
+    INIT_LOG("new Input");
     m_pInput = new Input(m_pMemory, m_pProcessor);
+    INIT_LOG("new Cartridge");
     m_pCartridge = new Cartridge();
 
+    INIT_LOG("Memory::Init");
     m_pMemory->Init();
+    INIT_LOG("Processor::Init");
     m_pProcessor->Init();
+    INIT_LOG("Video::Init");
     m_pVideo->Init();
+    INIT_LOG("Audio::Init");
     m_pAudio->Init();
+    INIT_LOG("Input::Init");
     m_pInput->Init();
+    INIT_LOG("Cartridge::Init");
     m_pCartridge->Init();
 
+    INIT_LOG("InitMemoryRules");
     InitMemoryRules();
+    INIT_LOG("InitDMGPalette");
     InitDMGPalette();
+
+    INIT_LOG("done");
+    #undef INIT_LOG
 }
 
 bool GearboyCore::RunToVBlank(u16* pFrameBuffer, s16* pSampleBuffer, int* pSampleCount, bool bDMGbuffer, bool step, bool stopOnBreakpoints)
